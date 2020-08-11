@@ -3,7 +3,7 @@ Prometheus [endclothing/prometheus_client_php](https://github.com/endclothing/pr
 
 ### MakiseRedisAdaper
 This adapter is a copy of original RedisAdapter, 
-but it works with RedisPool ([makise/redis](https://github.com/makise-co/redis))
+but it works with RedisPool ([makise-co/redis](https://github.com/makise-co/redis))
  and it's no longer work with static variables.
 #### Usage
 ```php
