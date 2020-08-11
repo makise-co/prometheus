@@ -1,4 +1,4 @@
-# prometheus swoole adapters
+# Prometheus Swoole Adapters
 Prometheus [endclothing/prometheus_client_php](https://github.com/endclothing/prometheus_client_php) Storage Adapters for Swoole
 
 ### MakiseRedisAdaper
