@@ -1,0 +1,44 @@
+{
+    "name": "makise-co/prometheus",
+    "description": "Makise-Co set of Prometheus StorageAdapters for Swoole",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "makise-co",
+        "prometheus",
+        "adapters",
+        "swoole"
+    ],
+    "authors": [
+        {
+            "name": "Dmitry K.",
+            "email": "coder1994@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "suggest": {
+        "makise-co/redis": "For redis storage",
+        "ext-redis": "For redis storage"
+    },
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "swoole/ide-helper": "^4.5",
+        "phpunit/phpunit": "^9.1",
+        "symfony/var-dumper": "^5.0",
+        "makise-co/redis": "^1.0",
+        "endclothing/prometheus_client_php": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "MakiseCo\\Prometheus\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MakiseCo\\Prometheus\\Tests\\": "tests/"
+        }
+    }
+}
