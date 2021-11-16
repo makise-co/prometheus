@@ -29,7 +29,8 @@
         "phpunit/phpunit": "^9.1",
         "symfony/var-dumper": "^5.0",
         "makise-co/redis": "^1.0",
-        "endclothing/prometheus_client_php": "^1.0"
+        "endclothing/prometheus_client_php": "^1.0",
+        "predis/predis": "^1.1"
     },
     "autoload": {
         "psr-4": {
