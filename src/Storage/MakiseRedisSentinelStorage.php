@@ -22,7 +22,7 @@ use Prometheus\Storage\Adapter;
 use Prometheus\Summary;
 use RuntimeException;
 
-class MakiseRedisStorage implements Adapter
+class MakiseRedisSentinelStorage implements Adapter
 {
     public const PROMETHEUS_METRIC_KEYS_SUFFIX = '_METRIC_KEYS';
 
@@ -51,7 +51,7 @@ class MakiseRedisStorage implements Adapter
     {
         $searchPattern = "";
 
-        $globalPrefix = $this->redis->getOption(\Redis::OPT_PREFIX);
+        $globalPrefix = (string)$this->redis->getOptions()->prefix;
         // @phpstan-ignore-next-line false positive, phpstan thinks getOptions returns int
         if (is_string($globalPrefix)) {
             $searchPattern .= $globalPrefix;
@@ -72,8 +72,8 @@ repeat
 until cursor == "0"
 LUA
             ,
-            [$searchPattern],
-            0
+            0,
+            $searchPattern,
         );
     }
 
@@ -150,15 +150,13 @@ end
 return result
 LUA
             ,
-            [
-                $this->toMetricKey($data),
-                $this->prefix . Histogram::TYPE . self::PROMETHEUS_METRIC_KEYS_SUFFIX,
-                json_encode(['b' => 'sum', 'labelValues' => $data['labelValues']]),
-                json_encode(['b' => $bucketToIncrease, 'labelValues' => $data['labelValues']]),
-                $data['value'],
-                json_encode($metaData),
-            ],
-            2
+            2,
+            $this->toMetricKey($data),
+            $this->prefix . Histogram::TYPE . self::PROMETHEUS_METRIC_KEYS_SUFFIX,
+            json_encode(['b' => 'sum', 'labelValues' => $data['labelValues']]),
+            json_encode(['b' => $bucketToIncrease, 'labelValues' => $data['labelValues']]),
+            $data['value'],
+            json_encode($metaData),
         );
     }
 
@@ -218,15 +216,13 @@ else
 end
 LUA
             ,
-            [
-                $this->toMetricKey($data),
-                $this->prefix . Gauge::TYPE . self::PROMETHEUS_METRIC_KEYS_SUFFIX,
-                $this->getRedisCommand($data['command']),
-                json_encode($data['labelValues']),
-                $data['value'],
-                json_encode($metaData),
-            ],
-            2
+            2,
+            $this->toMetricKey($data),
+            $this->prefix . Gauge::TYPE . self::PROMETHEUS_METRIC_KEYS_SUFFIX,
+            $this->getRedisCommand($data['command']),
+            json_encode($data['labelValues']),
+            $data['value'],
+            json_encode($metaData),
         );
     }
 
@@ -248,15 +244,13 @@ end
 return result
 LUA
             ,
-            [
-                $this->toMetricKey($data),
-                $this->prefix . Counter::TYPE . self::PROMETHEUS_METRIC_KEYS_SUFFIX,
-                $this->getRedisCommand($data['command']),
-                $data['value'],
-                json_encode($data['labelValues']),
-                json_encode($metaData),
-            ],
-            2
+            2,
+            $this->toMetricKey($data),
+            $this->prefix . Counter::TYPE . self::PROMETHEUS_METRIC_KEYS_SUFFIX,
+            $this->getRedisCommand($data['command']),
+            $data['value'],
+            json_encode($data['labelValues']),
+            json_encode($metaData),
         );
     }
 
@@ -281,7 +275,7 @@ LUA
         sort($keys);
         $histograms = [];
         foreach ($keys as $key) {
-            $raw = $this->redis->hGetAll(str_replace($this->redis->_prefix(''), '', $key));
+            $raw = $this->redis->hGetAll($key);
             $histogram = json_decode($raw['__meta'], true);
             unset($raw['__meta']);
             $histogram['samples'] = [];
@@ -356,12 +350,14 @@ LUA
      */
     private function removePrefixFromKey(string $key): string
     {
+        $redisPrefix = (string)$this->redis->getOptions()->prefix;
+
         // @phpstan-ignore-next-line false positive, phpstan thinks getOptions returns int
-        if ($this->redis->getOption(\Redis::OPT_PREFIX) === null) {
+        if ($redisPrefix === '') {
             return $key;
         }
         // @phpstan-ignore-next-line false positive, phpstan thinks getOptions returns int
-        return substr($key, strlen($this->redis->getOption(\Redis::OPT_PREFIX)));
+        return substr($key, strlen($redisPrefix));
     }
 
     /**
@@ -461,7 +457,7 @@ LUA
         sort($keys);
         $gauges = [];
         foreach ($keys as $key) {
-            $raw = $this->redis->hGetAll(str_replace($this->redis->_prefix(''), '', $key));
+            $raw = $this->redis->hGetAll($key);
             $gauge = json_decode($raw['__meta'], true);
             unset($raw['__meta']);
             $gauge['samples'] = [];
@@ -490,7 +486,7 @@ LUA
         sort($keys);
         $counters = [];
         foreach ($keys as $key) {
-            $raw = $this->redis->hGetAll(str_replace($this->redis->_prefix(''), '', $key));
+            $raw = $this->redis->hGetAll($key);
             $counter = json_decode($raw['__meta'], true);
             unset($raw['__meta']);
             $counter['samples'] = [];

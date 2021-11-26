@@ -1,5 +1,5 @@
 # Prometheus Swoole Adapters
-Prometheus [endclothing/prometheus_client_php](https://github.com/endclothing/prometheus_client_php) Storage Adapters for Swoole
+Prometheus [promphp/prometheus_client_php](https://github.com/PromPHP/prometheus_client_php) Storage Adapters for Swoole
 
 ### MakiseRedisAdaper
 This adapter is a copy of original RedisAdapter, 

@@ -10,20 +10,21 @@ declare(strict_types=1);
 
 namespace MakiseCo\Prometheus\Tests;
 
+use MakiseCo\Prometheus\Storage\MakiseRedisSentinelStorage;
 use MakiseCo\Prometheus\Storage\MakiseRedisStorage;
 use MakiseCo\Redis\RedisPool;
 use PHPUnit\Framework\TestCase;
 use Prometheus\CollectorRegistry;
 use Prometheus\RenderTextFormat;
 
-class MakiseRedisStorageTest extends TestCase
+class MakiseRedisSentinelStorageTest extends TestCase
 {
     use CoroutineTestTrait;
 
     public function testItWorks(): void
     {
-        $this->runCoroWithPool(static function (RedisPool $pool) {
-            $adapter = new MakiseRedisStorage($pool, 'test_makise');
+        $this->runCoroWithSentinelPool(static function (RedisPool $pool) {
+            $adapter = new MakiseRedisSentinelStorage($pool, 'test_makise2');
             $collector = new CollectorRegistry($adapter);
 
             $adapter->wipeStorage();

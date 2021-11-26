@@ -11,9 +11,10 @@ declare(strict_types=1);
 namespace MakiseCo\Prometheus\Tests;
 
 use Closure;
-use MakiseCo\Pool\PoolConfig;
-use MakiseCo\Redis\RedisConnectionConfig;
+use MakiseCo\Redis\ConnectionConfig;
 use MakiseCo\Redis\RedisPool;
+use MakiseCo\Redis\RedisSentinelConnector;
+use MakiseCo\Redis\SentinelConnectionConfig;
 use Swoole\Coroutine;
 use Swoole\Event;
 use Swoole\Runtime;
@@ -28,7 +29,7 @@ trait CoroutineTestTrait
     public function runCoroWithPool(Closure $closure, ...$args): void
     {
         $this->runCoro(static function () use ($closure, $args) {
-            $config = RedisConnectionConfig::fromArray(
+            $config = ConnectionConfig::fromArray(
                 [
                     'host' => '127.0.0.1',
                     'port' => 6379,
@@ -37,9 +38,25 @@ trait CoroutineTestTrait
                 ]
             );
 
-            $poolConfig = new PoolConfig();
+            $pool = new RedisPool($config);
+            $pool->init();
 
-            $pool = new RedisPool($poolConfig, null, $config);
+            $closure(...array_merge([$pool], ...$args));
+        });
+    }
+
+    public function runCoroWithSentinelPool(Closure $closure, ...$args): void
+    {
+        $this->runCoro(static function () use ($closure, $args) {
+            $config = SentinelConnectionConfig::fromArray(
+                [
+                    'hosts' => ['127.0.0.1:26379'],
+                    'timeout' => 1.0,
+                    'database' => 3,
+                ],
+            );
+
+            $pool = new RedisPool($config, new RedisSentinelConnector());
             $pool->init();
 
             $closure(...array_merge([$pool], ...$args));

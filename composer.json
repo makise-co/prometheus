@@ -22,15 +22,16 @@
         "ext-redis": "For redis storage"
     },
     "require": {
-        "php": ">=7.4"
+        "php": ">=7.4",
+        "ext-json": "*"
     },
     "require-dev": {
         "swoole/ide-helper": "^4.5",
-        "phpunit/phpunit": "^9.1",
+        "phpunit/phpunit": "^9.5",
         "symfony/var-dumper": "^5.0",
         "makise-co/redis": "^1.0",
-        "endclothing/prometheus_client_php": "^1.0",
-        "predis/predis": "^1.1"
+        "predis/predis": "^1.1",
+        "promphp/prometheus_client_php": "^2.4"
     },
     "autoload": {
         "psr-4": {
